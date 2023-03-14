@@ -5,7 +5,7 @@
   "engines": {
     "node": "^16"
   },
-  "author": "Userfront",
+  "author": "Marcos Frony <mfrony@gmail.com>",
   "main": "server.js",
   "directories": {
     "test": "test"
@@ -13,7 +13,7 @@
   "scripts": {
     "test": "NODE_ENV=test mocha ./test --exit",
     "test:watch": "NODE_ENV=test mocha --watch ./test ./ --file ./test/config/mocha.setup.js",
-    "start": "node server.js"
+    "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "@hapi/hapi": "^20.2.1",

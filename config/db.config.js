@@ -4,12 +4,19 @@ require("./env/dotenv.js");
 
 module.exports = {
   test: {
-    database: "api_challenge",
-    username: "mfrony",
-    // username: process.env.DATABASE_USERNAME || "postgres",
-    password: "R10D3J@n31r0!1",
-    host: "localhost",
-    dialect: "postgres",
-    port: 5432,
+    database: process.env.DATABASE_USERNAME || "api_challenge",
+    username: process.env.DATABASE_USERNAME || "postgres",
+    password: process.env.DATABASE_PASSWORD || null,
+    host: process.env.DATABASE_HOST || "localhost",
+    dialect: process.env.DATABASE_DIALECT || "postgres",
+    port: process.env.DATABASE_PORT || 5432,
   },
+  production: {
+    database: process.env.DATABASE_USERNAME || "api_challenge",
+    username: process.env.DATABASE_USERNAME || "postgres",
+    password: process.env.DATABASE_PASSWORD || null,
+    host: process.env.DATABASE_HOST || "localhost",
+    dialect: process.env.DATABASE_DIALECT || "postgres",
+    port: process.env.DATABASE_PORT || 5432,
+  }
 };
