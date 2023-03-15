@@ -94,8 +94,6 @@ User.prototype.isAdmin = async function (userId) {
  */
 User.prototype.findCompleteById = async function (userId) {
   const user = this;
-
-  // TODO: Add cache to verify if isAdmin is cached for this user
   const adminRole = await this.isAdmin(user.id);
   if (!adminRole) throw new Error("Unauthorized");
 
