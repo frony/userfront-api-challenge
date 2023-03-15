@@ -1,7 +1,7 @@
 "use strict";
 
 const Sequelize = require("sequelize");
-const config = require("../db.config.js")[process.env.NODE_ENV];
+const config = require("../db.config.js")[process.env.NODE_ENV || "test"];
 
 let sequelize = new Sequelize(
   config.database,
