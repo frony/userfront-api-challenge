@@ -60,18 +60,77 @@ User.prototype.toJSON = function () {
  *
  * @returns {Object}
  */
-User.prototype.findComplete = async function () {
+User.prototype.findComplete = async function (searchId) {
   const user = this;
   const userObj = user.get();
-  const rolesResult = await sequelize.query(
-    `SELECT r.name FROM "Roles" r JOIN "UserRoles" ur ON r.id = ur.role_id WHERE ur.user_id = :userId`,
-    { replacements: { userId: user.id } }
+  const userId = searchId ? searchId : userObj.id;
+
+  if (userId === userObj.id) {
+    const rolesResult = await sequelize.query(
+      `SELECT r.name FROM "Roles" r JOIN "UserRoles" ur ON r.id = ur.role_id WHERE ur.user_id = :userId`,
+      { replacements: { userId } }
+    );
+
+    return {
+      ...userObj,
+      roles: _.map(rolesResult[0], "name"),
+    };
+  }
+
+  const result = await sequelize.query(
+    `SELECT "Users".*, string_agg("Roles".name, ', ') as role_names
+    FROM "Users"
+    INNER JOIN "UserRoles" ON "Users".id = "UserRoles".user_id
+    INNER JOIN "Roles" ON "UserRoles".role_id = "Roles".id
+    WHERE "Users".id = :userId
+    GROUP BY "Users".id`,
+    { replacements: { userId } }
   );
 
+  const {
+    id,
+    uuid,
+    email,
+    created_at: createdAt,
+    updated_at: updatedAt,
+    role_names
+  } = result[0][0];
+
   return {
-    ...userObj,
-    roles: _.map(rolesResult[0], "name"),
-  };
+    id,
+    uuid,
+    email,
+    createdAt,
+    updatedAt,
+    roles: role_names.split(',')
+  }
+};
+
+/**
+ * Verifies if user has admin role
+ *
+ * @return {Object}
+ */
+User.prototype.isAdmin = async function (userId) {
+  const adminRole = await sequelize.models.UserRole.findOne({
+    where: { userId, roleId: 1 },
+  });
+
+  return adminRole ? true : false;
+};
+
+/**
+ * Find a user by ID along with its roles
+ *
+ * @returns {Object}
+ */
+User.prototype.findCompleteById = async function (userId) {
+  // TODO: Add cache to verify if isAdmin is cached for this user
+  const user = this;
+  const adminRole = await this.isAdmin(user.id);
+  if (!adminRole) throw new Error("Unauthorized");
+
+  return this.findComplete(userId);
 };
 
 /**
